@@ -10,19 +10,37 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
-    let itemArray = ["Learn Swift", "Have an idea", "Build an app"]
+    var itemArray = ["Learn Swift", "Have an idea", "Build an app"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
     }
     @IBAction func addToDo(_ sender: Any) {
+        
+        var tempTextField = UITextField()
+        
         let alert = UIAlertController(title: "Add task", message: "", preferredStyle: .alert)
-        let actionAdd = UIAlertAction(title: "Add", style: .default, handler: nil)
+        let actionAdd = UIAlertAction(title: "Add", style: .default) {(action) in
+            let newItem = tempTextField.text!
+            if newItem != "" {
+                self.itemArray.append(newItem)
+            }
+            self.tableView.reloadData()
+            
+            
+        }
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Type here..."
+            tempTextField = alertTextField
+        }
+        
+        
         let actionCancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alert.addAction(actionAdd)
         alert.addAction(actionCancel)
-        self.present(alert, animated: true)
+        self.present(alert, animated: true, completion: nil)
+        
     }
     
     // MARK: - Table view data source
