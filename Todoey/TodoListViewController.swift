@@ -32,11 +32,15 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let currentCell = tableView.cellForRow(at: indexPath)
+        guard let text = currentCell?.textLabel?.text else { return }
+     
         if currentCell?.accessoryType == .checkmark {
             currentCell?.accessoryType = .none
+            currentCell?.textLabel?.attributedText = NSMutableAttributedString(string: text, attributes: [NSAttributedString.Key.strikethroughStyle: 0])
         }
         else {
             currentCell?.accessoryType = .checkmark
+            currentCell?.textLabel?.attributedText = NSMutableAttributedString(string: text, attributes: [NSAttributedString.Key.strikethroughStyle: 2])
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -72,4 +76,6 @@ class TodoListViewController: UITableViewController {
     }
     */
 
+
+    
 }

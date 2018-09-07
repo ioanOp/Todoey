@@ -33,6 +33,9 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Todoey" id="x10-PJ-KpC">
                         <barButtonItem key="backBarButtonItem" title="Back" id="I8g-ha-t2P"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="MqD-zc-xMy">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </barButtonItem>
                     </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="T28-IQ-LXf" userLabel="First Responder" sceneMemberID="firstResponder"/>
