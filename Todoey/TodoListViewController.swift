@@ -28,13 +28,11 @@ class TodoListViewController: UITableViewController {
             }
             self.tableView.reloadData()
             
-            
         }
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Type here..."
             tempTextField = alertTextField
         }
-        
         
         let actionCancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alert.addAction(actionAdd)
@@ -58,11 +56,14 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let currentCell = tableView.cellForRow(at: indexPath)
+        let text = (currentCell?.textLabel?.text)!
         if currentCell?.accessoryType == .checkmark {
             currentCell?.accessoryType = .none
+            currentCell?.textLabel?.attributedText = strikeTxt(text: text, style: 0)
         }
         else {
             currentCell?.accessoryType = .checkmark
+            currentCell?.textLabel?.attributedText = strikeTxt(text: text, style: 2)
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -78,6 +79,13 @@ class TodoListViewController: UITableViewController {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
+    
+    func strikeTxt(text: String, style:Int) -> NSAttributedString {
+        return NSMutableAttributedString(string: text, attributes: [NSAttributedString.Key.strikethroughStyle: style])
+    }
+    
+   
+    //  currentCell?.textLabel?.attributedText = NSMutableAttributedString(string: text, attributes: [NSAttributedString.Key.strikethroughStyle: 0])
 
 //    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
 //        
@@ -88,6 +96,7 @@ class TodoListViewController: UITableViewController {
 //    }
  
 
+    
     /*
     // MARK: - Navigation
 
