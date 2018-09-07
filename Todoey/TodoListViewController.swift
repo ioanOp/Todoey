@@ -16,7 +16,15 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
 
     }
-
+    @IBAction func addToDo(_ sender: Any) {
+        let alert = UIAlertController(title: "Add task", message: "", preferredStyle: .alert)
+        let actionAdd = UIAlertAction(title: "Add", style: .default, handler: nil)
+        let actionCancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alert.addAction(actionAdd)
+        alert.addAction(actionCancel)
+        self.present(alert, animated: true)
+    }
+    
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
