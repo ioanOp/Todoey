@@ -10,7 +10,7 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
-    var itemArray = [""]
+    var itemArray = [String]()
     var defaults = UserDefaults.standard
     
     override func viewDidLoad() {
@@ -21,20 +21,23 @@ class TodoListViewController: UITableViewController {
     }
     @IBAction func addToDo(_ sender: Any) {
         
-        var tempTextField = UITextField()
+     //   var tempTextField = UITextField()
         
         let alert = UIAlertController(title: "Add task", message: "", preferredStyle: .alert)
+       
         let actionAdd = UIAlertAction(title: "Add", style: .default) {(action) in
-            let newItem = tempTextField.text!
+      //      let newItem = tempTextField.text!
+            let newItem = (alert.textFields?.first?.text)!
             if newItem != "" {
-                self.defaults.set(self.itemArray, forKey: "TodoListArray")
                 self.itemArray.append(newItem)
+                self.defaults.set(self.itemArray, forKey: "TodoListArray")
             }
             self.tableView.reloadData()
         }
+        
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Type here..."
-            tempTextField = alertTextField
+            //      tempTextField = alertTextField
         }
         
         let actionCancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -77,6 +80,8 @@ class TodoListViewController: UITableViewController {
  
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            itemArray.remove(at: indexPath.row)
+            defaults.set(itemArray, forKey: "TodoListArray")
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view

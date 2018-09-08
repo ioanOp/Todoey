@@ -15,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F439A0412143F1CD0072572A /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; name = MyPlayground.playground; path = ../../MyPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F44BA22D2142686100AD95BD /* TodoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewController.swift; sourceTree = "<group>"; };
 		F482A61D2142666B000A1CBD /* Todoey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todoey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F482A6202142666B000A1CBD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -56,6 +57,7 @@
 			children = (
 				F482A6202142666B000A1CBD /* AppDelegate.swift */,
 				F44BA22D2142686100AD95BD /* TodoListViewController.swift */,
+				F439A0412143F1CD0072572A /* MyPlayground.playground */,
 				F482A6242142666B000A1CBD /* Main.storyboard */,
 				F482A6272142666C000A1CBD /* Assets.xcassets */,
 				F482A6292142666C000A1CBD /* LaunchScreen.storyboard */,
