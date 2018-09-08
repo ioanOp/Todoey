@@ -11,15 +11,12 @@ import UIKit
 class TodoListViewController: UITableViewController {
 
     var itemArray = [ToDoItem]()
-    var defaults = UserDefaults.standard
+    let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        itemArray.append(ToDoItem(title: "do this"))
-        itemArray.append(ToDoItem(title: "do that"))
-        itemArray.append(ToDoItem(title: "stop helping"))
-        itemArray.append(ToDoItem(title: "repeat after me"))
-        
+        loadData()
         }
     
     @IBAction func addToDo(_ sender: Any) {
@@ -30,6 +27,7 @@ class TodoListViewController: UITableViewController {
             let newItem = ToDoItem(title: (alert.textFields?.first?.text)!)
             if newItem.title != "" {
                 self.itemArray.append(newItem)
+                self.saveData()
             }
             self.tableView.reloadData()
         }
@@ -62,6 +60,7 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        saveData()
         tableView.deselectRow(at: indexPath, animated: true)
         tableView.reloadData()
     }
@@ -73,7 +72,7 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             itemArray.remove(at: indexPath.row)
-            defaults.set(itemArray, forKey: "TodoListArray")
+            saveData()
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -96,8 +95,27 @@ class TodoListViewController: UITableViewController {
         
     }
     
+    func loadData(){
+        let decoder = PropertyListDecoder()
+        do {
+            let data = try decoder.decode([ToDoItem].self, from: Data(contentsOf: path!))
+            itemArray = data
+        } catch {
+            print(error.localizedDescription)
+        }
+      
+    }
+    
+    func saveData(){
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: path!)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
    
-    //  currentCell?.textLabel?.attributedText = NSMutableAttributedString(string: text, attributes: [NSAttributedString.Key.strikethroughStyle: 0])
 
 //    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
 //        
