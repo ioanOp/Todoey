@@ -7,24 +7,32 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
 
-    var itemArray = [ToDoItem]()
+    var itemArray = [Item]()
     let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-    
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
+    @IBOutlet weak var searchTodoItem: UISearchBar!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadData()
-        }
+        searchTodoItem.delegate = self
+       // loadData()
+        getItems()
+    }
     
     @IBAction func addToDo(_ sender: Any) {
         
         let alert = UIAlertController(title: "Add task", message: "", preferredStyle: .alert)
         
         let actionAdd = UIAlertAction(title: "Add", style: .default) {(action) in
-            let newItem = ToDoItem(title: (alert.textFields?.first?.text)!)
+            let newItem = Item(context: self.context)
+            newItem.title = alert.textFields?.first?.text!
+            newItem.done = false
+         //   let newItem = ToDoItem(title: (alert.textFields?.first?.text)!)
             if newItem.title != "" {
                 self.itemArray.append(newItem)
                 self.saveData()
@@ -43,6 +51,8 @@ class TodoListViewController: UITableViewController {
         self.present(alert, animated: true, completion: nil)
         
     }
+
+    
     
     // MARK: - Table view data source
 
@@ -60,9 +70,8 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        saveData()
         tableView.deselectRow(at: indexPath, animated: true)
-        tableView.reloadData()
+        saveData()
     }
 
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -71,13 +80,16 @@ class TodoListViewController: UITableViewController {
  
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            itemArray.remove(at: indexPath.row)
+            context.delete(itemArray[indexPath.row])
             saveData()
             tableView.deleteRows(at: [indexPath], with: .fade)
+        //    getItems()
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
+   
+    //MARK: cell formatting
     
     func strikeTxt(text: String, style:Int) -> NSAttributedString {
         return NSMutableAttributedString(string: text, attributes: [NSAttributedString.Key.strikethroughStyle: style])
@@ -95,26 +107,60 @@ class TodoListViewController: UITableViewController {
         
     }
     
-    func loadData(){
-        let decoder = PropertyListDecoder()
-        do {
-            let data = try decoder.decode([ToDoItem].self, from: Data(contentsOf: path!))
-            itemArray = data
-        } catch {
-            print(error.localizedDescription)
-        }
-      
-    }
+    //MARK: CoreData data management
     
     func saveData(){
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: path!)
+            try context.save()
         } catch {
-            print(error.localizedDescription)
+            print(error)
         }
+        tableView.reloadData()
     }
+    
+    func getItems(with request:NSFetchRequest<Item> = Item.fetchRequest()){
+        if let tempItems = try? context.fetch(request) as [Item] {
+            itemArray = tempItems
+        }
+        tableView.reloadData()
+    }
+    
+    
+//    func loadItems(with request:NSFetchRequest<Item> = Item.fetchRequest()){
+//        do {
+//            itemArray = try context.fetch(request)
+//        } catch {
+//            print(error.localizedDescription)
+//        }
+//    }
+    
+    func deleteItem(position: Int) {
+        let selectedItem = itemArray[position]
+        context.delete(selectedItem)
+        saveData()
+        getItems()
+    }
+    
+//    func loadData(){
+//        let decoder = PropertyListDecoder()
+//        do {
+//            let data = try decoder.decode([ToDoItem].self, from: Data(contentsOf: path!))
+//            itemArray = data
+//        } catch {
+//            print(error.localizedDescription)
+//        }
+//
+//    }
+//
+//    func saveData(){
+//        let encoder = PropertyListEncoder()
+//        do {
+//            let data = try encoder.encode(itemArray)
+//            try data.write(to: path!)
+//        } catch {
+//            print(error.localizedDescription)
+//        }
+//    }
    
 
 //    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
@@ -138,3 +184,33 @@ class TodoListViewController: UITableViewController {
     */
 
 }
+
+
+extension TodoListViewController: UISearchBarDelegate {
+    //MARK: search bar delegate methods
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Item> =  Item.fetchRequest()
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+      //  request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        searchBar.resignFirstResponder()
+        getItems(with: request)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let word = searchBar.text!
+        print(word.count)
+        if word.count == 0 {
+            getItems()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        } else {
+            let request: NSFetchRequest<Item> =  Item.fetchRequest()
+            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", word)
+            getItems(with: request)
+        }
+    }
+    
+}
+
