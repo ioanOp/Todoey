@@ -12,6 +12,12 @@ import CoreData
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
+    var selectedCategory: Category? {
+        didSet {
+            getItems()
+        }
+    }
+    
     let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
@@ -21,7 +27,7 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         searchTodoItem.delegate = self
        // loadData()
-        getItems()
+      // getItems()
     }
     
     @IBAction func addToDo(_ sender: Any) {
@@ -32,6 +38,7 @@ class TodoListViewController: UITableViewController {
             let newItem = Item(context: self.context)
             newItem.title = alert.textFields?.first?.text!
             newItem.done = false
+            newItem.parentCategory = self.selectedCategory
          //   let newItem = ToDoItem(title: (alert.textFields?.first?.text)!)
             if newItem.title != "" {
                 self.itemArray.append(newItem)
@@ -119,6 +126,7 @@ class TodoListViewController: UITableViewController {
     }
     
     func getItems(with request:NSFetchRequest<Item> = Item.fetchRequest()){
+        request.predicate = NSPredicate(format: "parentCategory.name MATCHES %@", (selectedCategory?.name)!)
         if let tempItems = try? context.fetch(request) as [Item] {
             itemArray = tempItems
         }
@@ -162,26 +170,7 @@ class TodoListViewController: UITableViewController {
 //        }
 //    }
    
-
-//    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-//        
-//    }
-// 
-//    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-//        return true
-//    }
  
-
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 
@@ -199,7 +188,6 @@ extension TodoListViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let word = searchBar.text!
-        print(word.count)
         if word.count == 0 {
             getItems()
             DispatchQueue.main.async {
