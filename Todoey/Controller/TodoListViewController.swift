@@ -25,7 +25,7 @@ class TodoListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-     //   searchTodoItem.delegate = self
+        searchTodoItem.delegate = self
     }
     
     @IBAction func addToDo(_ sender: Any) {
@@ -91,7 +91,6 @@ class TodoListViewController: UITableViewController {
             }
             
         }
-        
         tableView.deselectRow(at: indexPath, animated: true)
         tableView.reloadData()
     }
@@ -129,8 +128,6 @@ class TodoListViewController: UITableViewController {
         }
         
     }
-    
-
 
     func loadItems(){
         toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
@@ -141,31 +138,28 @@ class TodoListViewController: UITableViewController {
 
 }
 
-//
-//extension TodoListViewController: UISearchBarDelegate {
-//    //MARK: search bar delegate methods
-//
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        let request: NSFetchRequest<Item> =  Item.fetchRequest()
-//        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//      //  request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-//        searchBar.resignFirstResponder()
-//        getItems(with: request)
-//    }
-//
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        let word = searchBar.text!
-//        if word.count == 0 {
-//            getItems()
-//            DispatchQueue.main.async {
-//                searchBar.resignFirstResponder()
-//            }
-//        } else {
-//            let request: NSFetchRequest<Item> =  Item.fetchRequest()
-//            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", word)
-//            getItems(with: request)
-//        }
-//    }
-//
-//}
-//
+
+extension TodoListViewController: UISearchBarDelegate {
+    //MARK: search bar delegate methods
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        toDoItems = toDoItems?.filter("title CONTAINS[cd] %@", searchBar.text!)
+        searchBar.resignFirstResponder()
+        tableView.reloadData()
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let word = searchBar.text!
+        if word.count == 0 {
+            loadItems()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        } else {
+            toDoItems = toDoItems?.filter("title CONTAINS[cd] %@", word)
+            tableView.reloadData()
+        }
+    }
+
+}
+

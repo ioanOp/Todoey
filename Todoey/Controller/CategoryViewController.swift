@@ -70,7 +70,19 @@ class CategoryViewController: UITableViewController {
     //MARK: table view delegate methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self)
-        
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        guard let category = categories?[indexPath.row] else { return }
+        if editingStyle == .delete {
+            do {
+                try realm.write {
+                    category.items.removeAll()
+                    realm.delete(category)
+                }
+            } catch { print(error) }
+        }
+        tableView.reloadData()
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
