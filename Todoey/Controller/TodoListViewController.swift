@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeCellViewController {
 
     let realm = try! Realm()
     var toDoItems: Results<Item>?
@@ -28,6 +29,11 @@ class TodoListViewController: UITableViewController {
         searchTodoItem.delegate = self
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.navigationBar.barTintColor = UIColor(hexString: selectedCategory?.color)
+        self.title = selectedCategory?.name
+    }
+    
     @IBAction func addToDo(_ sender: Any) {
         
         let alert = UIAlertController(title: "Add task", message: "", preferredStyle: .alert)
@@ -43,7 +49,6 @@ class TodoListViewController: UITableViewController {
                     currentCategory.items.append(newItem)
                 }
             }
-            
             self.tableView.reloadData()
         }
 
@@ -66,9 +71,13 @@ class TodoListViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        let color = UIColor(hexString: selectedCategory?.color)
         if let item = toDoItems?[indexPath.row] {
+            let percentage = CGFloat(indexPath.row) / CGFloat(toDoItems!.count)
             cell.textLabel?.text = item.title
+            cell.backgroundColor = color?.darken(byPercentage: percentage)
+            cell.textLabel?.textColor = ContrastColorOf(backgroundColor: cell.backgroundColor!, returnFlat: true)
             item.done ? formatCell(cell: cell, completed: true) : formatCell(cell: cell, completed: false)
         } else {
             cell.textLabel?.text = "No items..."
@@ -87,19 +96,7 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
 
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
- 
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        guard let item = toDoItems?[indexPath.row] else { return }
-        if editingStyle == .delete {
-            try! realm.write {
-                realm.delete(item)
-            }
-          tableView.reloadData()
-        }
-    }
+
    
     //MARK: cell formatting
     
@@ -124,7 +121,13 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
 
-
+    override func updateModel(at indexPath: IndexPath) {
+        if let item = toDoItems?[indexPath.row] {
+            try! realm.write {
+                realm.delete(item)
+            }
+        }
+    }
 
 }
 
