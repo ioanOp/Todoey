@@ -7,23 +7,23 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
 
-    var categs = [Category]()
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var categories: Results<Category>?
+    let realm = try! Realm()
     
     func loadCategories() {
-        if let tempCats = try? context.fetch(Category.fetchRequest()) as [Category] {
-            categs = tempCats
-        }
+        categories = realm.objects(Category.self)
         tableView.reloadData()
     }
     
-    func saveCategories(){
+    func save(category: Category){
         do {
-             try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         } catch {
             print(error)
         }
@@ -41,10 +41,9 @@ class CategoryViewController: UITableViewController {
         alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (action) in
             let listName = (alert.textFields?.first?.text)!
             if listName != "" {
-                let newList = Category(context: self.context)
+                let newList = Category()
                 newList.name = listName
-                self.categs.append(newList)
-                self.saveCategories()
+                self.save(category: newList)
             }
         }))
         alert.addTextField { (textField) in
@@ -58,13 +57,13 @@ class CategoryViewController: UITableViewController {
 
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categs.count
+        return categories?.count ?? 1
     }
 
    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        cell.textLabel?.text = categs[indexPath.row].name
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories"
         return cell
     }
  
@@ -77,7 +76,7 @@ class CategoryViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destVC = segue.destination as! TodoListViewController
         if let indexPath = tableView.indexPathForSelectedRow {
-            destVC.selectedCategory = categs[indexPath.row]
+            destVC.selectedCategory = categories?[indexPath.row]
         }
         
     }
