@@ -20,12 +20,8 @@ class CategoryViewController: UITableViewController {
     }
     
     func save(category: Category){
-        do {
-            try realm.write {
-                realm.add(category)
-            }
-        } catch {
-            print(error)
+        try! realm.write {
+            realm.add(category)
         }
         tableView.reloadData()
     }

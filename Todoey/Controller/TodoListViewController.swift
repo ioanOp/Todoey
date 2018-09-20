@@ -36,14 +36,11 @@ class TodoListViewController: UITableViewController {
             guard let title = alert.textFields?.first?.text else { return }
             guard let currentCategory = self.selectedCategory else { return }
             if title != "" {
-                do {
-                    try self.realm.write {
-                        let newItem = Item()
-                        newItem.title = title
-                        currentCategory.items.append(newItem)
-                    }
-                } catch {
-                    print("Error saving item \(error)")
+                try! self.realm.write {
+                    let newItem = Item()
+                    newItem.title = title
+                    newItem.dateCreated = Date()
+                    currentCategory.items.append(newItem)
                 }
             }
             
@@ -82,14 +79,9 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let item = toDoItems?[indexPath.row] {
-            do {
-                try realm.write {
-                    item.done = !item.done
-                }
-            } catch {
-                print(error)
+            try! realm.write {
+                item.done = !item.done
             }
-            
         }
         tableView.deselectRow(at: indexPath, animated: true)
         tableView.reloadData()
@@ -102,11 +94,9 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard let item = toDoItems?[indexPath.row] else { return }
         if editingStyle == .delete {
-            do {
-                try realm.write {
-                    realm.delete(item)
-                }
-            } catch { print(error) }
+            try! realm.write {
+                realm.delete(item)
+            }
           tableView.reloadData()
         }
     }
@@ -130,7 +120,7 @@ class TodoListViewController: UITableViewController {
     }
 
     func loadItems(){
-        toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        toDoItems = selectedCategory?.items.sorted(byKeyPath: "dateCreated", ascending: false)
         tableView.reloadData()
     }
 
