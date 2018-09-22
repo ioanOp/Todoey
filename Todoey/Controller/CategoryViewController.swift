@@ -38,14 +38,10 @@ class CategoryViewController: SwipeCellViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.barTintColor = FlatSkyBlue()
-
         loadCategories()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        navigationController?.navigationBar.barTintColor = FlatSkyBlue()
-    }
+   
 
     @IBAction func addCategoryButton(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add category", message: "Create a new to do list", preferredStyle: .alert)

@@ -30,8 +30,20 @@ class TodoListViewController: SwipeCellViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        navigationController?.navigationBar.barTintColor = UIColor(hexString: selectedCategory?.color)
+        guard let hexColor = selectedCategory?.color else { fatalError() }
+        guard let navBar = navigationController?.navigationBar else { fatalError() }
+        let color = UIColor(hexString: hexColor)!
+        navBar.barTintColor = color
+        navBar.tintColor = ContrastColorOf(backgroundColor: color, returnFlat: true)
         self.title = selectedCategory?.name
+        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(backgroundColor: color, returnFlat: true)]
+        searchTodoItem.barTintColor = color
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        navigationController?.navigationBar.barTintColor = FlatSkyBlue()
+        navigationController?.navigationBar.tintColor = FlatWhite()
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: FlatWhite()]
     }
     
     @IBAction func addToDo(_ sender: Any) {
